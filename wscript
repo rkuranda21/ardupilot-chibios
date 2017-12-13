@@ -59,6 +59,11 @@ def options(opt):
         default='sitl',
         help='Target board to build, choices are %s.' % boards_names)
 
+    g.add_option('--lightweight',
+        action='store_true',
+        default=False,
+        help='Disable modules so as to fit in smaller Flash')
+
     g.add_option('--debug',
         action='store_true',
         default=False,

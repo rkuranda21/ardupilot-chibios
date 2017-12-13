@@ -526,7 +526,7 @@ void AP_GPS::detect_instance(uint8_t instance)
             AP_GPS_UBLOX::_detect(dstate->ublox_detect_state, data)) {
             new_gps = new AP_GPS_UBLOX(*this, state[instance], _port[instance]);
         }
-#if !HAL_MINIMIZE_FEATURES
+#if !HAL_BUILD_LIGHTWEIGHT
         // we drop the MTK drivers when building a small build as they are so rarely used
         // and are surprisingly large
         else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_MTK19) &&
@@ -536,7 +536,6 @@ void AP_GPS::detect_instance(uint8_t instance)
                    AP_GPS_MTK::_detect(dstate->mtk_detect_state, data)) {
             new_gps = new AP_GPS_MTK(*this, state[instance], _port[instance]);
         }
-#endif
         else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SBP) &&
                  AP_GPS_SBP2::_detect(dstate->sbp2_detect_state, data)) {
             new_gps = new AP_GPS_SBP2(*this, state[instance], _port[instance]);
@@ -545,12 +544,10 @@ void AP_GPS::detect_instance(uint8_t instance)
                  AP_GPS_SBP::_detect(dstate->sbp_detect_state, data)) {
             new_gps = new AP_GPS_SBP(*this, state[instance], _port[instance]);
         }
-#if !HAL_MINIMIZE_FEATURES
         else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_SIRF) &&
                  AP_GPS_SIRF::_detect(dstate->sirf_detect_state, data)) {
             new_gps = new AP_GPS_SIRF(*this, state[instance], _port[instance]);
         }
-#endif
         else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_ERB) &&
                  AP_GPS_ERB::_detect(dstate->erb_detect_state, data)) {
             new_gps = new AP_GPS_ERB(*this, state[instance], _port[instance]);
@@ -558,6 +555,7 @@ void AP_GPS::detect_instance(uint8_t instance)
                    AP_GPS_NMEA::_detect(dstate->nmea_detect_state, data)) {
             new_gps = new AP_GPS_NMEA(*this, state[instance], _port[instance]);
         }
+#endif
     }
 
 found_gps:
