@@ -389,13 +389,6 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     add_motor(AP_MOTORS_MOT_4,  135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  2);
                     success = true;
                     break;
-                case MOTOR_FRAME_TYPE_V:
-                    add_motor(AP_MOTORS_MOT_1,   45,  0.7981f,  1);
-                    add_motor(AP_MOTORS_MOT_2, -135,  1.0000f,  3);
-                    add_motor(AP_MOTORS_MOT_3,  -45, -0.7981f,  4);
-                    add_motor(AP_MOTORS_MOT_4,  135, -1.0000f,  2);
-                    success = true;
-                    break;
                 case MOTOR_FRAME_TYPE_H:
                     // H frame set-up - same as X but motors spin in opposite directiSons
                     add_motor(AP_MOTORS_MOT_1,   45, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  1);
@@ -404,6 +397,15 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     add_motor(AP_MOTORS_MOT_4,  135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 2);
                     success = true;
                     break;
+#if !HAL_BUILD_LIGHTWEIGHT
+                case MOTOR_FRAME_TYPE_V:
+                    add_motor(AP_MOTORS_MOT_1,   45,  0.7981f,  1);
+                    add_motor(AP_MOTORS_MOT_2, -135,  1.0000f,  3);
+                    add_motor(AP_MOTORS_MOT_3,  -45, -0.7981f,  4);
+                    add_motor(AP_MOTORS_MOT_4,  135, -1.0000f,  2);
+                    success = true;
+                    break;
+
                 case MOTOR_FRAME_TYPE_VTAIL:
                     /*
                         Tested with: Lynxmotion Hunter Vtail 400
@@ -446,12 +448,13 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     add_motor(AP_MOTORS_MOT_4, 0, 160, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 2);
                     success = true;
                     break;
+#endif
                 default:
                     // quad frame class does not support this frame type
                     break;
             }
             break;  // quad
-
+#if !HAL_BUILD_LIGHTWEIGHT
         case MOTOR_FRAME_HEXA:
             switch (frame_type) {
                 case MOTOR_FRAME_TYPE_PLUS:
@@ -654,7 +657,7 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     break;
             }
             break;
-
+#endif // HAL_BUILD_LIGHTWEIGHT
         default:
             // matrix doesn't support the configured class
             break;
