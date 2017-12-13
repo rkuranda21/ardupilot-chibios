@@ -32,22 +32,6 @@ void DeviceBus::bus_thread(void *arg)
 {
     struct DeviceBus *binfo = (struct DeviceBus *)arg;
 
-    // setup a name for the thread
-    char name[] = "XXX:X";
-    switch (binfo->hal_device->bus_type()) {
-    case AP_HAL::Device::BUS_TYPE_I2C:
-        snprintf(name, sizeof(name), "I2C:%u",
-                 binfo->hal_device->bus_num());
-        break;
-
-    case AP_HAL::Device::BUS_TYPE_SPI:
-        snprintf(name, sizeof(name), "SPI:%u",
-                 binfo->hal_device->bus_num());
-        break;
-    default:
-        break;
-    }
-
     while (true) {
         uint64_t now = AP_HAL::micros64();
         DeviceBus::callback_info *callback;
@@ -101,9 +85,25 @@ AP_HAL::Device::PeriodicHandle DeviceBus::register_periodic_callback(uint32_t pe
         thread_started = true;
 
         hal_device = _hal_device;
+        // setup a name for the thread
+        char name[] = "XXX:X";
+        switch (hal_device->bus_type()) {
+        case AP_HAL::Device::BUS_TYPE_I2C:
+            snprintf(name, sizeof(name), "I2C:%u",
+                     hal_device->bus_num());
+            break;
 
-        thread_ctx = chThdCreateStatic(bus_thread_wa,
-                         sizeof(bus_thread_wa),
+        case AP_HAL::Device::BUS_TYPE_SPI:
+            snprintf(name, sizeof(name), "SPI:%u",
+                     hal_device->bus_num());
+            break;
+        default:
+            break;
+        }
+
+        thread_ctx = chThdCreateFromHeap(NULL,
+                         THD_WORKING_AREA_SIZE(1024),
+                         name,
                          thread_priority,           /* Initial priority.    */
                          DeviceBus::bus_thread,    /* Thread function.     */
                          this);                     /* Thread parameter.    */

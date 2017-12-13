@@ -40,7 +40,6 @@ private:
         uint32_t period_usec;
         uint64_t next_usec;
     } *callbacks;
-    THD_WORKING_AREA(bus_thread_wa, 2048);
     uint8_t thread_priority;
     thread_t* thread_ctx;
     bool thread_started;
