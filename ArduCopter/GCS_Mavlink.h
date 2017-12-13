@@ -17,8 +17,11 @@ protected:
     uint32_t telem_delay() const override;
 
     bool accept_packet(const mavlink_status_t &status, mavlink_message_t &msg) override;
-
+#if AUTO_CTRL == ENABLED
     AP_Mission *get_mission() override;
+#else
+    AP_Mission *get_mission() {return nullptr;}
+#endif
     AP_Rally *get_rally() const override;
     Compass *get_compass() const override;
     AP_Camera *get_camera() const override;
@@ -39,8 +42,13 @@ protected:
 private:
 
     void handleMessage(mavlink_message_t * msg) override;
+#if AUTO_CTRL == ENABLED
     bool handle_guided_request(AP_Mission::Mission_Command &cmd) override;
     void handle_change_alt_request(AP_Mission::Mission_Command &cmd) override;
+#else
+    bool handle_guided_request(AP_Mission::Mission_Command &cmd) {return false;}
+    void handle_change_alt_request(AP_Mission::Mission_Command &cmd) {}   
+#endif
     bool try_send_message(enum ap_message id) override;
 
     void packetReceived(const mavlink_status_t &status,

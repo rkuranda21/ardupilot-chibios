@@ -8,7 +8,7 @@
  * for GCS and Companion Computers vs the AP_Avoidance_Copter class for adsb avoidance) and inputs from
  * each source are only accepted and processed in the appropriate flight mode.
  */
-
+#if AUTO_CTRL == ENABLED
 // initialise avoid_adsb controller
 bool Copter::avoid_adsb_init(const bool ignore_checks)
 {
@@ -36,3 +36,4 @@ void Copter::avoid_adsb_run()
     //       position and velocity requests will be ignored while the vehicle is not in guided mode
     guided_run();
 }
+#endif

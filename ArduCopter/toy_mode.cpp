@@ -171,9 +171,9 @@ const AP_Param::GroupInfo ToyMode::var_info[] = {
    
     AP_GROUPEND
 };
-
+#if !HAL_BUILD_LIGHTWEIGHT
 #include "load_data1.h"
-
+#endif
 ToyMode::ToyMode()
 {
     AP_Param::setup_object_defaults(this, var_info);
@@ -948,7 +948,7 @@ void ToyMode::thrust_limiting(float *thrust, uint8_t num_motors)
     }
                                            
 }
-
+#if !HAL_BUILD_LIGHTWEIGHT
 /*
   run a motor load test - used for endurance checking in factory tests
  */
@@ -999,7 +999,7 @@ void ToyMode::load_test_run(void)
         load_test.running = false;
     }    
 }
-
+#endif
 /*
   if we try to arm and the compass is out of range then we enable
   inflight compass learning

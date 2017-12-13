@@ -1,5 +1,5 @@
 #include "Copter.h"
-
+#if AUTO_CTRL == ENABLED
 /*
  * Init and run calls for guided flight mode
  */
@@ -766,3 +766,4 @@ bool Copter::guided_limit_check()
     // if we got this far we must be within limits
     return false;
 }
+#endif // MISSION == ENABLED

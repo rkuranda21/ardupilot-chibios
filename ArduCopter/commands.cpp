@@ -1,5 +1,5 @@
 #include "Copter.h"
-
+#if AUTO_CTRL == ENABLED
 /*
  * the home_state has a number of possible values (see enum HomeState in defines.h's)
  *   HOME_UNSET             = home is not set, no GPS positions yet received
@@ -100,6 +100,21 @@ bool Copter::set_home(const Location& loc, bool lock)
     // return success
     return true;
 }
+#endif //MISSION == ENABLED
+
+// far_from_EKF_origin - checks if a location is too far from the EKF origin
+//  returns true if too far
+bool Copter::far_from_EKF_origin(const Location& loc)
+{
+    // check distance to EKF origin
+    const struct Location &ekf_origin = inertial_nav.get_origin();
+    if (get_distance(ekf_origin, loc) > EKF_ORIGIN_MAX_DIST_M) {
+        return true;
+    }
+
+    // close enough to origin
+    return false;
+}
 
 // sets ekf_origin if it has not been set.
 //  should only be used when there is no GPS to provide an absolute position
@@ -126,21 +141,6 @@ void Copter::set_ekf_origin(const Location& loc)
     // send ekf origin to GCS
     gcs().send_ekf_origin(loc);
 }
-
-// far_from_EKF_origin - checks if a location is too far from the EKF origin
-//  returns true if too far
-bool Copter::far_from_EKF_origin(const Location& loc)
-{
-    // check distance to EKF origin
-    const struct Location &ekf_origin = inertial_nav.get_origin();
-    if (get_distance(ekf_origin, loc) > EKF_ORIGIN_MAX_DIST_M) {
-        return true;
-    }
-
-    // close enough to origin
-    return false;
-}
-
 // checks if we should update ahrs/RTL home position from GPS
 void Copter::set_system_time_from_GPS()
 {

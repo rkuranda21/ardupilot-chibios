@@ -78,27 +78,30 @@
    #   define RC_FAST_SPEED 490
 #endif
 
-# define RANGEFINDER_ENABLED 			DISABLED
-# define RANGEFINDER_TILT_CORRECTION 	DISABLED
-# define PROXIMITY_ENABLED 			DISABLED
-# define VISUAL_ODOMETRY_ENABLED 		DISABLED
-# define AUTOTUNE_ENABLED  			DISABLED
-# define SPRAYER  						DISABLED
-# define PRECISION_LANDING 			DISABLED
-# define GRIPPER_ENABLED 				DISABLED
-# define PARACHUTE 					DISABLED
-# define ADSB_ENABLED 					DISABLED
-# define NAV_GUIDED    				DISABLED
-# define CAMERA        				DISABLED
-# define MOUNT         				DISABLED
-# define POSHOLD_ENABLED               DISABLED
-//# define LOGGING_ENABLED               DISABLED
-# define AC_RALLY   					DISABLED
+#if HAL_BUILD_LIGHTWEIGHT
+# define RANGEFINDER_ENABLED            DISABLED
+# define RANGEFINDER_TILT_CORRECTION    DISABLED
+# define PROXIMITY_ENABLED 	            DISABLED
+# define VISUAL_ODOMETRY_ENABLED        DISABLED
+# define AUTOTUNE_ENABLED               DISABLED
+# define SPRAYER                        DISABLED
+# define PRECISION_LANDING              DISABLED
+# define GRIPPER_ENABLED                DISABLED
+# define PARACHUTE                      DISABLED
+# define ADSB_ENABLED                   DISABLED
+# define NAV_GUIDED                     DISABLED
+# define CAMERA                         DISABLED
+# define MOUNT                          DISABLED
+# define POSHOLD_ENABLED                DISABLED
+# define LOGGING_ENABLED                DISABLED
+# define AC_RALLY                       DISABLED
 # define AC_TERRAIN 					DISABLED
 # define AC_AVOID_ENABLED   			DISABLED
-# define CLI_ENABLED           		DISABLED
-# define FRSKY_TELEM_ENABLED 	        DISABLED
-# define SMARTRTL_ENABLED			DISABLED
+# define CLI_ENABLED                    DISABLED
+# define FRSKY_TELEM_ENABLED            DISABLED
+# define SMARTRTL_ENABLED               DISABLED
+# define AUTO_CTRL                      DISABLED
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // Rangefinder
@@ -651,6 +654,13 @@
 #endif
 #if AC_AVOID_ENABLED && !AC_FENCE
   #error AC_Avoidance relies on AC_FENCE which is disabled
+#endif
+
+//////////////////////////////////////////////////////////////////////////////////
+// AUTO_CTRL
+//
+#ifndef AUTO_CTRL
+# define AUTO_CTRL          ENABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////

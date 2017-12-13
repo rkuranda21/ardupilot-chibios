@@ -7,9 +7,10 @@ void Copter::run_nav_updates(void)
 {
     // calculate distance and bearing for reporting and autopilot decisions
     calc_distance_and_bearing();
-
+#if AUTO_CTRL == ENABLED
     // run autopilot to make high level decisions about control modes
     run_autopilot();
+#endif
 }
 
 // calc_distance_and_bearing - calculate distance and bearing to next waypoint and home
@@ -90,7 +91,7 @@ void Copter::calc_home_distance_and_bearing()
         update_super_simple_bearing(false);
     }
 }
-
+#if AUTO_CTRL == ENABLED
 // run_autopilot - highest level call to process mission commands
 void Copter::run_autopilot()
 {
@@ -100,3 +101,4 @@ void Copter::run_autopilot()
         mission.update();
     }
 }
+#endif

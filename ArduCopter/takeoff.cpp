@@ -36,12 +36,14 @@ bool Copter::do_user_takeoff(float takeoff_alt_cm, bool must_navigate)
 #endif
 
         switch(control_mode) {
+#if AUTO_CTRL == ENABLED
             case GUIDED:
                 if (guided_takeoff_start(takeoff_alt_cm)) {
                     set_auto_armed(true);
                     return true;
                 }
                 return false;
+#endif
             case LOITER:
             case POSHOLD:
             case ALT_HOLD:

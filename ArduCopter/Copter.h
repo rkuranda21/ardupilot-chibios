@@ -49,7 +49,6 @@
 #ifdef HAL_USE_EKF3
 #include <AP_NavEKF3/AP_NavEKF3.h>
 #endif
-#include <AP_Mission/AP_Mission.h>     // Mission command library
 #include <AC_PID/AC_PID.h>             // PID library
 #include <AC_PID/AC_PI_2D.h>           // PID library (2-axis)
 #include <AC_PID/AC_HELI_PID.h>        // Heli specific Rate PID library
@@ -75,7 +74,6 @@
 #include <AP_Vehicle/AP_Vehicle.h>         // needed for AHRS build
 #include <AP_InertialNav/AP_InertialNav.h>     // ArduPilot Mega inertial navigation library
 #include <AC_WPNav/AC_WPNav.h>           // ArduCopter waypoint navigation library
-#include <AC_WPNav/AC_Circle.h>          // circle navigation library
 #include <AP_Declination/AP_Declination.h>     // ArduPilot Mega Declination Helper Library
 #include <AC_Fence/AC_Fence.h>           // Arducopter Fence library
 #include <AC_Avoidance/AC_Avoid.h>           // Arducopter stop at fence library
@@ -108,6 +106,12 @@
 #include "AP_Arming.h"
 
 // libraries which are dependent on #defines in defines.h and/or config.h
+#if AUTO_CTRL == ENABLED
+#include <AP_Mission/AP_Mission.h>     // Mission command library
+#include <AC_WPNav/AC_Circle.h>          // circle navigation library
+#include "avoidance_adsb.h"
+#endif
+
 #if SPRAYER == ENABLED
 #include <AC_Sprayer/AC_Sprayer.h>         // crop sprayer library
 #endif
@@ -142,7 +146,6 @@
 #include "control_flowhold.h"
 #endif
 #include "Parameters.h"
-#include "avoidance_adsb.h"
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
 #include <SITL/SITL.h>
@@ -247,12 +250,13 @@ private:
     SITL::SITL sitl;
 #endif
 
+#if AUTO_CTRL == ENABLED
     // Mission library
     AP_Mission mission = AP_Mission::create(ahrs,
             FUNCTOR_BIND_MEMBER(&Copter::start_command, bool, const AP_Mission::Mission_Command &),
             FUNCTOR_BIND_MEMBER(&Copter::verify_command_callback, bool, const AP_Mission::Mission_Command &),
             FUNCTOR_BIND_MEMBER(&Copter::exit_mission, void));
-
+#endif
     // Arming/Disarming mangement class
     AP_Arming_Copter arming = AP_Arming_Copter::create(ahrs, barometer, compass, battery, inertial_nav, ins);
 
@@ -545,8 +549,9 @@ private:
     AC_AttitudeControl *attitude_control;
     AC_PosControl *pos_control;
     AC_WPNav *wp_nav;
+#if AUTO_CTRL == ENABLED
     AC_Circle *circle_nav;
-
+#endif
     // Performance monitoring
     int16_t pmTest1;
 
@@ -628,10 +633,10 @@ private:
 #endif
 
     AP_ADSB adsb = AP_ADSB::create(ahrs);
-
+#if AUTO_CTRL == ENABLED
     // avoidance of adsb enabled vehicles (normally manned vheicles)
     AP_Avoidance_Copter avoidance_adsb = AP_Avoidance_Copter::create(ahrs, adsb);
-
+#endif
     // use this to prevent recursion during sensor init
     bool in_mavlink_delay;
 
@@ -798,13 +803,14 @@ private:
     void userhook_MediumLoop();
     void userhook_SlowLoop();
     void userhook_SuperSlowLoop();
+    void set_system_time_from_GPS();
+    void set_ekf_origin(const Location& loc);
+    bool far_from_EKF_origin(const Location& loc);
+#if AUTO_CTRL == ENABLED
     void update_home_from_EKF();
     void set_home_to_current_location_inflight();
     bool set_home_to_current_location(bool lock);
     bool set_home(const Location& loc, bool lock);
-    void set_ekf_origin(const Location& loc);
-    bool far_from_EKF_origin(const Location& loc);
-    void set_system_time_from_GPS();
     void exit_mission();
     void do_RTL(void);
     bool verify_takeoff();
@@ -816,6 +822,7 @@ private:
     bool verify_wait_delay();
     bool verify_within_distance();
     bool verify_yaw();
+#endif // MISSION == ENABLED
     MAV_RESULT mavlink_compassmot(mavlink_channel_t chan);
     void delay(uint32_t ms);
     bool acro_init(bool ignore_checks);
@@ -823,6 +830,7 @@ private:
     void get_pilot_desired_angle_rates(int16_t roll_in, int16_t pitch_in, int16_t yaw_in, float &roll_out, float &pitch_out, float &yaw_out);
     bool althold_init(bool ignore_checks);
     void althold_run();
+#if AUTO_CTRL == ENABLED
     bool auto_init(bool ignore_checks);
     void auto_run();
     void auto_takeoff_start(const Location& dest_loc);
@@ -858,6 +866,7 @@ private:
     void set_auto_yaw_rate(float turn_rate_cds);
     float get_auto_heading(void);
     float get_auto_yaw_rate_cds();
+#endif //MISSION == ENABLED
     bool autotune_init(bool ignore_checks);
     void autotune_stop();
     bool autotune_start(bool ignore_checks);
@@ -882,7 +891,9 @@ private:
     void autotune_updating_p_up_d_down(float &tune_d, float tune_d_min, float tune_d_step_ratio, float &tune_p, float tune_p_min, float tune_p_max, float tune_p_step_ratio, float target, float measurement_min, float measurement_max);
     void autotune_twitching_measure_acceleration(float &rate_of_change, float rate_measurement, float &rate_measurement_max);
     void autotune_get_poshold_attitude(float &roll_cd, float &pitch_cd, float &yaw_cd);
+#if AUTO_CTRL == ENABLED
     void avoidance_adsb_update(void);
+#endif
     void autotune_send_step_string();
     const char *autotune_level_issue_string() const;
     const char * autotune_type_string() const;
@@ -903,12 +914,12 @@ private:
     float get_throttle_assist(float velz, float pilot_throttle_scaled);
     bool flip_init(bool ignore_checks);
     void flip_run();
+#if AUTO_CTRL == ENABLED
     bool guided_init(bool ignore_checks);
     bool guided_takeoff_start(float final_alt_above_home);
     void guided_pos_control_start();
     void guided_vel_control_start();
     void guided_posvel_control_start();
-    void guided_angle_control_start();
     bool guided_set_destination(const Vector3f& destination, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
     bool guided_set_destination(const Location_Class& dest_loc, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
     void guided_set_velocity(const Vector3f& velocity, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
@@ -928,6 +939,8 @@ private:
     bool guided_nogps_init(bool ignore_checks);
     void guided_nogps_run();
     void guided_set_yaw_state(bool use_yaw, float yaw_cd, bool use_yaw_rate, float yaw_rate_cds, bool relative_angle);
+#endif
+    void guided_angle_control_start();
     bool land_init(bool ignore_checks);
     void land_run();
     void land_gps_run();
@@ -997,12 +1010,12 @@ private:
     void parachute_check();
     void parachute_release();
     void parachute_manual_release();
-
+#if AUTO_CTRL == ENABLED
     // support for AP_Avoidance custom flight mode, AVOID_ADSB
     bool avoid_adsb_init(bool ignore_checks);
     void avoid_adsb_run();
     bool avoid_adsb_set_velocity(const Vector3f& velocity_neu);
-
+#endif
     void ekf_check();
     bool ekf_over_threshold();
     bool ekf_check_position_problem();
@@ -1070,7 +1083,9 @@ private:
     void calc_wp_distance();
     void calc_wp_bearing();
     void calc_home_distance_and_bearing();
+#if AUTO_CTRL == ENABLED
     void run_autopilot();
+#endif
     void perf_info_reset();
     void perf_ignore_this_loop();
     void perf_info_check_loop_time(uint32_t time_in_micros);
@@ -1149,6 +1164,7 @@ private:
     void takeoff_get_climb_rates(float& pilot_climb_rate, float& takeoff_climb_rate);
     void print_hit_enter();
     void tuning();
+#if AUTO_CTRL == ENABLED
     bool start_command(const AP_Mission::Mission_Command& cmd);
     bool verify_command(const AP_Mission::Mission_Command& cmd);
     bool verify_command_callback(const AP_Mission::Mission_Command& cmd);
@@ -1194,6 +1210,7 @@ private:
     bool verify_nav_delay(const AP_Mission::Mission_Command& cmd);
 
     void auto_spline_start(const Location_Class& destination, bool stopped_at_start, AC_WPNav::spline_segment_end_type seg_end_type, const Location_Class& next_destination);
+#endif //MISSION == ENABLED
     void log_init(void);
     void init_capabilities(void);
     void dataflash_periodic(void);

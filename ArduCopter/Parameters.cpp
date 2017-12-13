@@ -681,11 +681,11 @@ const AP_Param::Info Copter::var_info[] = {
     // @Group: WPNAV_
     // @Path: ../libraries/AC_WPNav/AC_WPNav.cpp
     GOBJECTPTR(wp_nav, "WPNAV_",       AC_WPNav),
-
+#if AUTO_CTRL == ENABLED
     // @Group: CIRCLE_
     // @Path: ../libraries/AC_WPNav/AC_Circle.cpp
     GOBJECTPTR(circle_nav, "CIRCLE_",  AC_Circle),
-
+#endif
     // @Group: ATC_
     // @Path: ../libraries/AC_AttitudeControl/AC_AttitudeControl.cpp,../libraries/AC_AttitudeControl/AC_AttitudeControl_Multi.cpp,../libraries/AC_AttitudeControl/AC_AttitudeControl_Heli.cpp
 #if FRAME_CONFIG == HELI_FRAME
@@ -806,9 +806,12 @@ const AP_Param::Info Copter::var_info[] = {
     // @Path: ../libraries/AP_NavEKF3/AP_NavEKF3.cpp
     GOBJECTN(EKF3, NavEKF3, "EK3_", NavEKF3),
 #endif
+
+#if AUTO_CTRL == ENABLED
     // @Group: MIS_
     // @Path: ../libraries/AP_Mission/AP_Mission.cpp
     GOBJECT(mission, "MIS_",       AP_Mission),
+#endif
 
     // @Group: RSSI_
     // @Path: ../libraries/AP_RSSI/AP_RSSI.cpp
@@ -846,9 +849,11 @@ const AP_Param::Info Copter::var_info[] = {
     // @Path: ../libraries/AP_ADSB/AP_ADSB.cpp
     GOBJECT(adsb,                "ADSB_", AP_ADSB),
 
+#if AUTO_CTRL == ENABLED
     // @Group: AVD_
     // @Path: ../libraries/AP_Avoidance/AP_Avoidance.cpp
     GOBJECT(avoidance_adsb, "AVD_", AP_Avoidance_Copter),
+#endif
 
     // @Param: AUTOTUNE_AXES
     // @DisplayName: Autotune axis bitmask

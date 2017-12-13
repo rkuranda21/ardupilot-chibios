@@ -245,7 +245,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                 save_trim();
             }
             break;
-
+#if AUTO_CTRL == ENABLED
         case AUXSW_SAVE_WP:
             // save waypoint when switch is brought high
             if (ch_flag == AUX_SWITCH_HIGH) {
@@ -299,7 +299,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                 }
             }
             break;
-
+#endif //MISSION == ENABLED
         case AUXSW_CAMERA_TRIGGER:
 #if CAMERA == ENABLED
             if (ch_flag == AUX_SWITCH_HIGH) {
@@ -447,13 +447,13 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
             }
 #endif
             break;
-
+#if AUTO_CTRL == ENABLED
         case AUXSW_MISSION_RESET:
             if (ch_flag == AUX_SWITCH_HIGH) {
                 mission.reset();
             }
             break;
-
+#endif
         case AUXSW_ATTCON_FEEDFWD:
             // enable or disable feed forward
             attitude_control->bf_feedforward(ch_flag == AUX_SWITCH_HIGH);
@@ -549,7 +549,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                 }
             }
             break;
-
+#if AUTO_CTRL == ENABLED
         case AUXSW_AVOID_ADSB:
             // enable or disable AP_Avoidance
             if (ch_flag == AUX_SWITCH_HIGH) {
@@ -560,7 +560,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                 Log_Write_Event(DATA_AVOIDANCE_ADSB_DISABLE);
             }
             break;
-
+#endif
         case AUXSW_PRECISION_LOITER:
 #if PRECISION_LANDING == ENABLED
             switch (ch_flag) {

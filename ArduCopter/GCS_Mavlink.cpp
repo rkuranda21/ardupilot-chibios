@@ -673,7 +673,7 @@ GCS_MAVLINK_Copter::data_stream_send(void)
     }
 }
 
-
+#if AUTO_CTRL == ENABLED
 bool GCS_MAVLINK_Copter::handle_guided_request(AP_Mission::Mission_Command &cmd)
 {
     return copter.do_guided(cmd);
@@ -688,14 +688,17 @@ void GCS_MAVLINK_Copter::handle_change_alt_request(AP_Mission::Mission_Command &
 
     // To-Do: update target altitude for loiter or waypoint controller depending upon nav mode
 }
+#endif
 
 void GCS_MAVLINK_Copter::packetReceived(const mavlink_status_t &status,
                                         mavlink_message_t &msg)
 {
+#if AUTO_CTRL == ENABLED
     if (copter.g2.dev_options.get() & DevOptionADSBMAVLink) {
         // optional handling of GLOBAL_POSITION_INT as a MAVLink based avoidance source
         copter.avoidance_adsb.handle_msg(msg);
     }
+#endif
     GCS_MAVLINK::packetReceived(status, msg);
 }
 
@@ -819,6 +822,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         mavlink_msg_command_int_decode(msg, &packet);
         switch(packet.command)
         {
+#if AUTO_CTRL == ENABLED
             case MAV_CMD_DO_SET_HOME: {
                 // assume failure
                 result = MAV_RESULT_FAILED;
@@ -861,7 +865,6 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 }
                 break;
             }
-
             case MAV_CMD_DO_SET_ROI: {
                 // param1 : /* Region of interest mode (not used)*/
                 // param2 : /* MISSION index/ target ID (not used)*/
@@ -883,6 +886,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 break;
             }
 
+#endif //MISSION == ENABLED
             default:
                 result = MAV_RESULT_UNSUPPORTED;
                 break;
@@ -938,6 +942,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             }
             break;
 
+#if AUTO_CTRL == ENABLED
         case MAV_CMD_CONDITION_YAW:
             // param1 : target angle [0-360]
             // param2 : speed during change [deg per second]
@@ -1013,6 +1018,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             copter.set_auto_yaw_roi(roi_loc);
             result = MAV_RESULT_ACCEPTED;
             break;
+#endif //MISSION == ENABLED
 
         case MAV_CMD_DO_MOUNT_CONTROL:
 #if MOUNT == ENABLED
@@ -1020,7 +1026,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             result = MAV_RESULT_ACCEPTED;
 #endif
             break;
-
+#if AUTO_CTRL == ENABLED
         case MAV_CMD_MISSION_START:
             if (copter.motors->armed() && copter.set_mode(AUTO, MODE_REASON_GCS_COMMAND)) {
                 copter.set_auto_armed(true);
@@ -1030,7 +1036,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
             }
             break;
-
+#endif
         case MAV_CMD_PREFLIGHT_CALIBRATION:
             // exit immediately if armed
             if (copter.motors->armed()) {
@@ -1306,7 +1312,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         copter.command_ack_counter++;
         break;
     }
-
+#if AUTO_CTRL == ENABLED
     case MAVLINK_MSG_ID_SET_ATTITUDE_TARGET:   // MAV ID: 82
     {
         // decode packet
@@ -1533,6 +1539,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
         break;
     }
+#endif //MISSION == ENABLED
 
     case MAVLINK_MSG_ID_DISTANCE_SENSOR:
     {
@@ -1630,7 +1637,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         copter.terrain.handle_data(chan, msg);
 #endif
         break;
-
+#if AUTO_CTRL == ENABLED
     case MAVLINK_MSG_ID_SET_HOME_POSITION:
     {
         mavlink_set_home_position_t packet;
@@ -1650,6 +1657,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         }
         break;
     }
+#endif
 
     case MAVLINK_MSG_ID_ADSB_VEHICLE:
     case MAVLINK_MSG_ID_UAVIONIX_ADSB_OUT_CFG:
@@ -1746,10 +1754,12 @@ bool GCS_MAVLINK_Copter::accept_packet(const mavlink_status_t &status, mavlink_m
     return (msg.sysid == copter.g.sysid_my_gcs);
 }
 
+#if AUTO_CTRL == ENABLED
 AP_Mission *GCS_MAVLINK_Copter::get_mission()
 {
     return &copter.mission;
 }
+#endif
 
 Compass *GCS_MAVLINK_Copter::get_compass() const
 {

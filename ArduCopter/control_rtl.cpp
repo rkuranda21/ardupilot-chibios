@@ -1,5 +1,5 @@
 #include "Copter.h"
-
+#if AUTO_CTRL == ENABLED
 /*
  * Init and run calls for RTL flight mode
  *
@@ -548,3 +548,5 @@ void Copter::rtl_compute_return_target(bool terrain_following_allowed)
     // ensure we do not descend
     rtl_path.return_target.alt = MAX(rtl_path.return_target.alt, curr_alt);
 }
+#endif //MISSION == ENABLED
+

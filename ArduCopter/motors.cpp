@@ -184,9 +184,10 @@ bool Copter::init_arm_motors(bool arming_from_gcs)
         // we have reset height, so arming height is zero
         arming_altitude_m = 0;        
     } else if (ap.home_state == HOME_SET_NOT_LOCKED) {
+#if AUTO_CTRL == ENABLED
         // Reset home position if it has already been set before (but not locked)
         set_home_to_current_location(false);
-
+#endif
         // remember the height when we armed
         arming_altitude_m = inertial_nav.get_altitude() * 0.01;
     }
@@ -272,10 +273,10 @@ void Copter::init_disarm_motors()
 
     // send disarm command to motors
     motors->armed(false);
-
+#if AUTO_CTRL == ENABLED
     // reset the mission
     mission.reset();
-
+#endif
     DataFlash_Class::instance()->set_vehicle_armed(false);
 
     // disable gps velocity based centrefugal force compensation
@@ -314,7 +315,9 @@ void Copter::motors_output()
 
     // check if we are performing the motor test
     if (g2.toy_mode.load_test.running) {
+#if !HAL_BUILD_LIGHTWEIGHT
         g2.toy_mode.load_test_run();
+#endif
     } else if (ap.motor_test) {
         motor_test_output();
     } else {

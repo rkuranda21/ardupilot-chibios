@@ -224,14 +224,20 @@ void Copter::init_ardupilot()
     // initialise AP_RPM library
     rpm_sensor.init();
 
+#if AUTO_CTRL == ENABLED
     // initialise mission library
     mission.init();
+#endif
+
 #if SMARTRTL_ENABLED == ENABLED
     // initialize SmartRTL
     g2.smart_rtl.init();
 #endif
+
+#if AUTO_CTRL == ENABLED
     // initialise DataFlash library
     DataFlash.set_mission(&mission);
+#endif
     DataFlash.setVehicle_Startup_Log_Writer(FUNCTOR_BIND(&copter, &Copter::Log_Write_Vehicle_Startup_Messages, void));
 
     // initialise the flight mode and aux switch
@@ -594,11 +600,13 @@ void Copter::allocate_motors(void)
     }
     AP_Param::load_object_from_eeprom(wp_nav, wp_nav->var_info);
 
+#if AUTO_CTRL == ENABLED
     circle_nav = new AC_Circle(inertial_nav, *ahrs_view, *pos_control);
     if (wp_nav == nullptr) {
         AP_HAL::panic("Unable to allocate CircleNav");
     }
     AP_Param::load_object_from_eeprom(circle_nav, circle_nav->var_info);
+#endif
 
     // reload lines from the defaults file that may now be accessible
     AP_Param::reload_defaults_file();

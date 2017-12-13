@@ -132,12 +132,12 @@ void Copter::tuning() {
         // set declination to +-20degrees
         compass.set_declination(ToRad((2.0f * control_in - g.radio_tuning_high)/100.0f), false);     // 2nd parameter is false because we do not want to save to eeprom because this would have a performance impact
         break;
-
+#if AUTO_CTRL == ENABLED
     case TUNING_CIRCLE_RATE:
         // set circle rate up to approximately 45 deg/sec in either direction
         circle_nav->set_rate((float)control_in/25.0f-20.0f);
         break;
-
+#endif
     case TUNING_RANGEFINDER_GAIN:
         // set rangefinder gain
         g.rangefinder_gain.set(tuning_value);

@@ -1,5 +1,5 @@
 #include "Copter.h"
-
+#if AUTO_CTRL == ENABLED
 /*
  * Init and run calls for circle flight mode
  */
@@ -97,3 +97,4 @@ void Copter::circle_run()
     pos_control->set_alt_target_from_climb_rate(target_climb_rate, G_Dt, false);
     pos_control->update_z_controller();
 }
+#endif //MISSION == ENABLED

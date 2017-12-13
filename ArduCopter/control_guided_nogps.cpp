@@ -1,5 +1,5 @@
 #include "Copter.h"
-
+#if AUTO_CTRL == ENABLED
 /*
  * Init and run calls for guided_nogps flight mode
  */
@@ -19,4 +19,4 @@ void Copter::guided_nogps_run()
     // run angle controller
     guided_angle_control_run();
 }
-
+#endif

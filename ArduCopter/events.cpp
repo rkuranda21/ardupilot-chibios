@@ -177,8 +177,10 @@ void Copter::failsafe_terrain_on_event()
 
     if (should_disarm_on_failsafe()) {
         init_disarm_motors();
+#if AUTO_CTRL == ENABLED
     } else if (control_mode == RTL) {
         rtl_restart_without_terrain();
+#endif
     } else {
         set_mode_RTL_or_land_with_pause(MODE_REASON_TERRAIN_FAILSAFE);
     }

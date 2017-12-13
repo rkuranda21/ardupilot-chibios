@@ -283,10 +283,10 @@ void Copter::fast_loop()
 
     // run the attitude controllers
     update_flight_mode();
-
+#if AUTO_CTRL == ENABLED
     // update home from EKF if necessary
     update_home_from_EKF();
-
+#endif
     // check if we've landed or crashed
     update_land_and_crash_detectors();
 

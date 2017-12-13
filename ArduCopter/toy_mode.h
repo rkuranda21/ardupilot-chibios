@@ -27,9 +27,9 @@ public:
 
     // handle mavlink message
     void handle_message(mavlink_message_t *msg);
-
+#if !HAL_BUILD_LIGHTWEIGHT
     void load_test_run(void);
-    
+#endif
     static const struct AP_Param::GroupInfo var_info[];
     
 private:

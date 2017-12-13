@@ -54,6 +54,14 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             success = althold_init(ignore_checks);
             break;
 
+        case LOITER:
+            success = loiter_init(ignore_checks);
+            break;
+
+        case LAND:
+            success = land_init(ignore_checks);
+            break;
+#if AUTO_CTRL == ENABLED
         case AUTO:
             success = auto_init(ignore_checks);
             break;
@@ -62,22 +70,22 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             success = circle_init(ignore_checks);
             break;
 
-        case LOITER:
-            success = loiter_init(ignore_checks);
-            break;
-
         case GUIDED:
             success = guided_init(ignore_checks);
-            break;
-
-        case LAND:
-            success = land_init(ignore_checks);
             break;
 
         case RTL:
             success = rtl_init(ignore_checks);
             break;
 
+        case AVOID_ADSB:
+            success = avoid_adsb_init(ignore_checks);
+            break;
+
+        case GUIDED_NOGPS:
+            success = guided_nogps_init(ignore_checks);
+            break;
+#endif
         case DRIFT:
             success = drift_init(ignore_checks);
             break;
@@ -110,13 +118,6 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             success = throw_init(ignore_checks);
             break;
 
-        case AVOID_ADSB:
-            success = avoid_adsb_init(ignore_checks);
-            break;
-
-        case GUIDED_NOGPS:
-            success = guided_nogps_init(ignore_checks);
-            break;
 #if SMARTRTL_ENABLED == ENABLED
         case SMART_RTL:
             success = smart_rtl_init(ignore_checks);
@@ -147,8 +148,9 @@ failed:
         control_mode = mode;
         control_mode_reason = reason;
         DataFlash.Log_Write_Mode(control_mode, control_mode_reason);
-
+#if AUTO_CTRL == ENABLED
         adsb.set_is_auto_mode((mode == AUTO) || (mode == RTL) || (mode == GUIDED));
+#endif
 
 #if AC_FENCE == ENABLED
         // pilot requested flight mode change during a fence breach indicates pilot is attempting to manually recover
@@ -204,6 +206,14 @@ void Copter::update_flight_mode()
             althold_run();
             break;
 
+        case LOITER:
+            loiter_run();
+            break;
+
+        case LAND:
+            land_run();
+            break;
+#if AUTO_CTRL == ENABLED
         case AUTO:
             auto_run();
             break;
@@ -212,22 +222,22 @@ void Copter::update_flight_mode()
             circle_run();
             break;
 
-        case LOITER:
-            loiter_run();
-            break;
-
         case GUIDED:
             guided_run();
-            break;
-
-        case LAND:
-            land_run();
             break;
 
         case RTL:
             rtl_run();
             break;
 
+        case AVOID_ADSB:
+            avoid_adsb_run();
+            break;
+
+        case GUIDED_NOGPS:
+            guided_nogps_run();
+            break;
+#endif
         case DRIFT:
             drift_run();
             break;
@@ -260,13 +270,6 @@ void Copter::update_flight_mode()
             throw_run();
             break;
 
-        case AVOID_ADSB:
-            avoid_adsb_run();
-            break;
-
-        case GUIDED_NOGPS:
-            guided_nogps_run();
-            break;
 #if SMARTRTL_ENABLED == ENABLED
         case SMART_RTL:
             smart_rtl_run();
@@ -290,7 +293,7 @@ void Copter::exit_mode(control_mode_t old_control_mode, control_mode_t new_contr
         autotune_stop();
     }
 #endif
-
+#if AUTO_CTRL == ENABLED
     // stop mission when we leave auto mode
     if (old_control_mode == AUTO) {
         if (mission.state() == AP_Mission::MISSION_RUNNING) {
@@ -300,7 +303,7 @@ void Copter::exit_mode(control_mode_t old_control_mode, control_mode_t new_contr
         camera_mount.set_mode_to_default();
 #endif  // MOUNT == ENABLED
     }
-
+#endif
     // smooth throttle transition when switching from manual to automatic flight modes
     if (mode_has_manual_throttle(old_control_mode) && !mode_has_manual_throttle(new_control_mode) && motors->armed() && !ap.land_complete) {
         // this assumes all manual flight modes use get_pilot_desired_throttle to translate pilot input to output throttle
